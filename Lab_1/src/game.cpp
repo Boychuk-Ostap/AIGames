@@ -1,7 +1,8 @@
 #include "../include/game.h"
 
-Game::Game() : main_window(sf::VideoMode({ 1920,1080 }), "Lab1")
+Game::Game() : main_window(sf::VideoMode({ 1920, 1080 }), "Lab1")
 {
+	
 }
 
 void Game::run()
@@ -25,11 +26,12 @@ void Game::processEvents()
 
 void Game::update(sf::Time dt)
 {
+	player.Update();
 }
 
 void Game::render()
 {
 	main_window.clear();
-
+	player.Draw(main_window);
 	main_window.display();
 }
