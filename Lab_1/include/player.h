@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-enum class Movemen_direction {
+enum class Movement_direction {
 	None,
 	Up,
 	Down,
@@ -23,7 +23,7 @@ private:
 	void Movement(float dt);
 	void KeyBoardHandle();
 
-	Movemen_direction move_dir = Movemen_direction::None;
+	Movement_direction move_dir = Movement_direction::None;
 	sf::RectangleShape playerRect;
 
 	// --- Variables --- 
