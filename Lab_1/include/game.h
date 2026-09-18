@@ -5,13 +5,15 @@
 class Game {
 public:
 	Game();
-	void run();
+	void Run();
 
 	Player player;
 private:
-	void processEvents();
-	void update(sf::Time dt);
-	void render();
+	void ProcessEvents();
+	void Update(sf::Time dt);
+	void Render();
 
 	sf::RenderWindow main_window;
+
+	float deltaTime;
 };

@@ -5,17 +5,17 @@ Game::Game() : main_window(sf::VideoMode({ 1920, 1080 }), "Lab1")
 	
 }
 
-void Game::run()
+void Game::Run()
 {
 	sf::Clock clock;
 	while (main_window.isOpen()) {
-		processEvents();
-		update(clock.restart());
-		render();
+		ProcessEvents();
+		Update(clock.restart());
+		Render();
 	}
 }
 
-void Game::processEvents()
+void Game::ProcessEvents()
 {
 	while (const std::optional event = main_window.pollEvent()) {
 		if (event->is < sf::Event::Closed>()) {
@@ -24,12 +24,13 @@ void Game::processEvents()
 	}
 }
 
-void Game::update(sf::Time dt)
+void Game::Update(sf::Time dt)
 {
-	player.Update();
+	deltaTime = dt.asSeconds();
+	player.Update(deltaTime);
 }
 
-void Game::render()
+void Game::Render()
 {
 	main_window.clear();
 	player.Draw(main_window);
