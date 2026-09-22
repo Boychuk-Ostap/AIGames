@@ -28,11 +28,13 @@ void Game::Update(sf::Time dt)
 {
 	deltaTime = dt.asSeconds();
 	player.Update(deltaTime);
+	npc.Update(deltaTime);
 }
 
 void Game::Render()
 {
 	main_window.clear();
 	player.Draw(main_window);
+	npc.Draw(main_window);
 	main_window.display();
 }

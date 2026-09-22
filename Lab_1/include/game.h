@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "../include/player.h"
+#include "../include/npc.h"
 
 class Game {
 public:
@@ -8,6 +9,7 @@ public:
 	void Run();
 
 	Player player;
+	Npc npc;
 private:
 	void ProcessEvents();
 	void Update(sf::Time dt);
