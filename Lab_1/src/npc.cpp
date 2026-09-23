@@ -88,6 +88,5 @@ void Npc::WrapAroundScreen(sf::Vector2f window_Size)
 		npcPos.y = -npcSize.y; // down -> top
 	}
 
-#
 	npcRect.setPosition(npcPos);
 }

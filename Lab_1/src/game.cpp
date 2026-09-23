@@ -26,7 +26,7 @@ void Game::ProcessEvents()
 void Game::Update(sf::Time dt)
 {
 	deltaTime = dt.asSeconds();
-	player.Update(deltaTime);
+	player.Update(deltaTime, sf::Vector2f(window_Size));
 	npc.Update(deltaTime, sf::Vector2f(window_Size));
 }
 

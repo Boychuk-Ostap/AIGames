@@ -17,11 +17,12 @@ class Player {
 public:
 	Player();
 	void Draw(sf::RenderWindow& window);
-	void Update(float dt);
+	void Update(float dt, sf::Vector2f window_Size);
 
 private:
 	void Movement(float dt);
 	void KeyBoardHandle();
+	void WrapPlayerAroundScreen(sf::Vector2f window_Size);
 
 	Movement_direction move_dir = Movement_direction::None;
 	sf::RectangleShape playerRect;

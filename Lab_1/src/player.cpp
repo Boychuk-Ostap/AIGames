@@ -16,10 +16,11 @@ void Player::Draw(sf::RenderWindow& window)
 
 
 
-void Player::Update(float dt)
+void Player::Update(float dt, sf::Vector2f window_Size)
 {
 	KeyBoardHandle();
 	Movement(dt);
+	WrapPlayerAroundScreen(window_Size);
 }
 
 void Player::Movement(float dt)
@@ -59,4 +60,26 @@ void Player::KeyBoardHandle()
 
 	else
 		move_dir = Movement_direction::None;
+}
+
+void Player::WrapPlayerAroundScreen(sf::Vector2f window_Size)
+{
+	sf::Vector2f playerPos = playerRect.getPosition();
+	sf::Vector2f playerSize = playerRect.getSize();
+	
+	if (playerPos.x + playerSize.x < 0.f) {
+		playerPos.x = window_Size.x; // Left -> right
+	}
+	else if (playerPos.x > window_Size.x + 5) {
+		playerPos.x = -playerSize.x; // Right -> left
+	}
+	
+	if (playerPos.y + playerSize.y < 0.f) {
+		playerPos.y = window_Size.y; // top -> down
+	}
+	else if (playerPos.y > window_Size.y) {
+		playerPos.y = -playerSize.y; // down -> top
+	}
+	
+	playerRect.setPosition(playerPos);
 }
