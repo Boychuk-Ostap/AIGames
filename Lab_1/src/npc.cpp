@@ -6,7 +6,7 @@ Npc::Npc()
 	npcRect.setSize({ 25.0f, 25.0f });
 	npcRect.setFillColor(sf::Color::Red);
 	npcRect.setPosition({ 500.f, 500.f });
-	speed_Npc = 50;
+	speed_Npc = 200;
 	random_Direction_Number = 0;
 
 }
@@ -16,11 +16,12 @@ void Npc::Draw(sf::RenderWindow & window)
 	window.draw(npcRect);
 }
 
-void Npc::Update(float dt)
+void Npc::Update(float dt, sf::Vector2f window_Size)
 {
 	KeyBoardHandle();
 	DirectionHandle();
 	Movement(dt);
+	WrapAroundScreen(window_Size);
 }
 
 void Npc::Movement(float dt)
@@ -66,4 +67,27 @@ void Npc::DirectionHandle()
 		default: move_dir = Movement_direction_NPC::None; break; // 0 = not started
 	}
 
+}
+
+void Npc::WrapAroundScreen(sf::Vector2f window_Size)
+{
+	sf::Vector2f npcPos = npcRect.getPosition();
+	sf::Vector2f npcSize = npcRect.getSize();
+
+	if (npcPos.x + npcSize.x < 0.f) {
+		npcPos.x = window_Size.x; // Left -> right
+	}
+	else if (npcPos.x > window_Size.x + 5) {
+		npcPos.x = -npcSize.x; // Right -> left
+	}
+
+	if (npcPos.y + npcSize.y < 0.f) {
+		npcPos.y = window_Size.y; // top -> down
+	}
+	else if (npcPos.y > window_Size.y) {
+		npcPos.y = -npcSize.y; // down -> top
+	}
+
+#
+	npcRect.setPosition(npcPos);
 }

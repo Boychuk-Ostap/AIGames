@@ -1,8 +1,7 @@
 #include "../include/game.h"
 
-Game::Game() : main_window(sf::VideoMode({ 1920, 1080 }), "Lab1")
+Game::Game() : main_window(sf::VideoMode(sf::Vector2u(window_Size)), "Lab1")
 {
-	
 }
 
 void Game::Run()
@@ -28,7 +27,7 @@ void Game::Update(sf::Time dt)
 {
 	deltaTime = dt.asSeconds();
 	player.Update(deltaTime);
-	npc.Update(deltaTime);
+	npc.Update(deltaTime, sf::Vector2f(window_Size));
 }
 
 void Game::Render()

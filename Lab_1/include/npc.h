@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-
 enum class Movement_direction_NPC {
 	None,
 	Up,
@@ -18,13 +17,15 @@ class Npc {
 public:
 	Npc();
 	void Draw(sf::RenderWindow& window);
-	void Update(float dt);
+	void Update(float dt, sf::Vector2f window_Size);
+
 
 private:
 	void Movement(float dt);
 	void KeyBoardHandle();
 	int GetRandDir();
 	void DirectionHandle();
+	void WrapAroundScreen(sf::Vector2f window_Size);
 
 	Movement_direction_NPC move_dir = Movement_direction_NPC::None;
 	sf::RectangleShape npcRect;
