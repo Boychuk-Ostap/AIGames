@@ -1,19 +1,23 @@
 #include "npc.h"
 #include <random>
 
-Npc::Npc()
+Npc::Npc() : npcTexture("../Assets/kenney_simple-space/PNG/Default/enemy_D.png"),
+			 npcSprite(npcTexture)
 {
-	npcRect.setSize({ 25.0f, 25.0f });
-	npcRect.setFillColor(sf::Color::Red);
-	npcRect.setPosition({ 500.f, 500.f });
+	const auto texureSizeNPC = npcTexture.getSize();
+	float scaleNPC = 100.f / static_cast<float>(texureSizeNPC.x);
+	npcSprite.setScale({ scaleNPC, scaleNPC });
+	npcSprite.setOrigin(sf::Vector2f(texureSizeNPC) / 2.f);
+	npcSprite.setPosition({ 500.f, 500.f });
+
 	speed_Npc = 200;
-	random_Direction_Number = 0;
+	random_Direction_Number = GetRandDir();
 
 }
 
 void Npc::Draw(sf::RenderWindow & window)
 {
-	window.draw(npcRect);
+	window.draw(npcSprite);
 }
 
 void Npc::Update(float dt, sf::Vector2f window_Size)
@@ -27,15 +31,15 @@ void Npc::Update(float dt, sf::Vector2f window_Size)
 void Npc::Movement(float dt)
 {
 	switch (move_dir) {
-	case Movement_direction_NPC::Up: npcRect.move({ 0.f, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::Down: npcRect.move({ 0.f, speed_Npc * dt }); break;
-	case Movement_direction_NPC::Left: npcRect.move({ -speed_Npc * dt, 0.f }); break;
-	case Movement_direction_NPC::Rigth: npcRect.move({ speed_Npc * dt, 0.f }); break;
+	case Movement_direction_NPC::Up: npcSprite.move({ 0.f, -speed_Npc * dt }); break;
+	case Movement_direction_NPC::Down: npcSprite.move({ 0.f, speed_Npc * dt }); break;
+	case Movement_direction_NPC::Left: npcSprite.move({ -speed_Npc * dt, 0.f }); break;
+	case Movement_direction_NPC::Rigth: npcSprite.move({ speed_Npc * dt, 0.f }); break;
 
-	case Movement_direction_NPC::UpRight: npcRect.move({ speed_Npc * dt, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::UpLeft: npcRect.move({ -speed_Npc * dt, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::DownLeft: npcRect.move({ -speed_Npc * dt, speed_Npc * dt }); break;
-	case Movement_direction_NPC::DownRight: npcRect.move({ speed_Npc * dt, speed_Npc * dt }); break;
+	case Movement_direction_NPC::UpRight: npcSprite.move({ speed_Npc * dt, -speed_Npc * dt }); break;
+	case Movement_direction_NPC::UpLeft: npcSprite.move({ -speed_Npc * dt, -speed_Npc * dt }); break;
+	case Movement_direction_NPC::DownLeft: npcSprite.move({ -speed_Npc * dt, speed_Npc * dt }); break;
+	case Movement_direction_NPC::DownRight: npcSprite.move({ speed_Npc * dt, speed_Npc * dt }); break;
 	}
 }
 
@@ -71,8 +75,8 @@ void Npc::DirectionHandle()
 
 void Npc::WrapAroundScreen(sf::Vector2f window_Size)
 {
-	sf::Vector2f npcPos = npcRect.getPosition();
-	sf::Vector2f npcSize = npcRect.getSize();
+	sf::Vector2f npcPos = npcSprite.getPosition();
+	sf::Vector2f npcSize = npcSprite.getGlobalBounds().size;
 
 	if (npcPos.x + npcSize.x < 0.f) {
 		npcPos.x = window_Size.x; // Left -> right
@@ -88,5 +92,5 @@ void Npc::WrapAroundScreen(sf::Vector2f window_Size)
 		npcPos.y = -npcSize.y; // down -> top
 	}
 
-	npcRect.setPosition(npcPos);
+	npcSprite.setPosition(npcPos);
 }

@@ -1,85 +1,88 @@
 #include "player.h"
 #include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <numbers>
 
-Player::Player()
+Player::Player() : playerTexture("../Assets/kenney_simple-space/PNG/Default/ship_sidesA.png"),
+playerSprite(playerTexture)
 {
-	playerRect.setSize({ 50.0f, 50.0f });
-	playerRect.setFillColor(sf::Color::White);
-	playerRect.setPosition({ 100.f, 100.f });
-	speed_Player = 500;
+	const auto textureSizeP = playerTexture.getSize();
+	float scaleP = 100.0f / static_cast<float>(textureSizeP.x);
+	playerSprite.setScale({ scaleP, scaleP });
+
+	playerSprite.setOrigin(sf::Vector2f(textureSizeP) / 2.f); // origin in the center of the sprite for rotation
+
+	position_P = { 200.f, 200.f };
+	heading_P = 0.f; // Start facing to the right 
+	speed_P = 150.f; // Start moving speed
+
+	playerSprite.setPosition(position_P);
+	playerSprite.setRotation(sf::degrees(heading_P + spriteRotationOffset));
 }
 
 void Player::Draw(sf::RenderWindow& window)
 {
-	window.draw(playerRect);
+	window.draw(playerSprite);
 }
-
-
 
 void Player::Update(float dt, sf::Vector2f window_Size)
 {
-	KeyBoardHandle();
+	KeyBoardHandle(dt);
 	Movement(dt);
 	WrapPlayerAroundScreen(window_Size);
 }
 
 void Player::Movement(float dt)
 {
-	speed_Player = 500;
+	const float radians = heading_P * std::numbers::pi_v<float> / 180.f;
 
-	switch (move_dir) {
-		case Movement_direction::Up: playerRect.move({ 0.f, -speed_Player * dt }); break;
-		case Movement_direction::Down: playerRect.move({ 0.f, speed_Player * dt }); break;
-		case Movement_direction::Left: playerRect.move({ -speed_Player * dt, 0.f }); break;
-		case Movement_direction::Rigth: playerRect.move({ speed_Player * dt, 0.f }); break;
-					
-		case Movement_direction::UpRight: playerRect.move({ speed_Player * dt, -speed_Player * dt }); break;
-		case Movement_direction::UpLeft: playerRect.move({ -speed_Player * dt, -speed_Player * dt }); break;
-		case Movement_direction::DownLeft: playerRect.move({ -speed_Player * dt, speed_Player * dt }); break;
-		case Movement_direction::DownRight: playerRect.move({ speed_Player * dt, speed_Player * dt }); break;
-	}
+	velocity_P = { std::cos(radians) * speed_P,std::sin(radians) * speed_P };
+	position_P += velocity_P * dt;
 
+	playerSprite.setPosition(position_P);
+	playerSprite.setRotation(sf::degrees(heading_P + spriteRotationOffset));
 }
 
-void Player::KeyBoardHandle()
+void Player::KeyBoardHandle(float dt)
 {
-	bool up = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up);
-	bool down = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down);
-	bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left);
-	bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right);
+	using Key = sf::Keyboard::Key;
 
-	if (right && up) move_dir = Movement_direction::UpRight;
-	else if (left && up) move_dir = Movement_direction::UpLeft;
-	else if (right && down) move_dir = Movement_direction::DownRight;
-	else if (left && down) move_dir = Movement_direction::DownLeft;
-	else if (up) move_dir = Movement_direction::Up;
-	else if (down) move_dir = Movement_direction::Down;
-	else if (left) move_dir = Movement_direction::Left;
-	else if (right) move_dir = Movement_direction::Rigth;
+	if (sf::Keyboard::isKeyPressed(Key::Up) || sf::Keyboard::isKeyPressed(Key::W)){
+		speed_P += acceleration_P * dt;
+	}
+	if (sf::Keyboard::isKeyPressed(Key::Down) || sf::Keyboard::isKeyPressed(Key::S)) {
+		speed_P -= acceleration_P * dt;
+	}
 
+	if (sf::Keyboard::isKeyPressed(Key::Left) || sf::Keyboard::isKeyPressed(Key::A)) {
+		heading_P -= turnRate_P * dt;
+	}
+	if (sf::Keyboard::isKeyPressed(Key::Right) || sf::Keyboard::isKeyPressed(Key::D)) {
+		heading_P += turnRate_P * dt;
+	}
 
-	else
-		move_dir = Movement_direction::None;
+	speed_P = std::clamp(speed_P, 0.f, maxSpeed_P);
+	heading_P = std::fmod(heading_P + 360.f, 360.f);
 }
 
 void Player::WrapPlayerAroundScreen(sf::Vector2f window_Size)
 {
-	sf::Vector2f playerPos = playerRect.getPosition();
-	sf::Vector2f playerSize = playerRect.getSize();
+	sf::Vector2f playerSize = playerSprite.getGlobalBounds().size / 2.f;
 	
-	if (playerPos.x + playerSize.x < 0.f) {
-		playerPos.x = window_Size.x; // Left -> right
+	if (position_P.x + playerSize.x < 0.f) {
+		position_P.x = window_Size.x; // Left -> right
 	}
-	else if (playerPos.x > window_Size.x + 5) {
-		playerPos.x = -playerSize.x; // Right -> left
-	}
-	
-	if (playerPos.y + playerSize.y < 0.f) {
-		playerPos.y = window_Size.y; // top -> down
-	}
-	else if (playerPos.y > window_Size.y) {
-		playerPos.y = -playerSize.y; // down -> top
+	else if (position_P.x > window_Size.x + 5) {
+		position_P.x = -playerSize.x; // Right -> left
 	}
 	
-	playerRect.setPosition(playerPos);
+	if (position_P.y + playerSize.y < 0.f) {
+		position_P.y = window_Size.y; // top -> down
+	}
+	else if (position_P.y > window_Size.y) {
+		position_P.y = -playerSize.y; // down -> top
+	}
+	
+	playerSprite.setPosition(position_P);
 }

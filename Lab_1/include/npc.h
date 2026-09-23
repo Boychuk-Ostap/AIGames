@@ -28,6 +28,8 @@ private:
 	void WrapAroundScreen(sf::Vector2f window_Size);
 
 	Movement_direction_NPC move_dir = Movement_direction_NPC::None;
+	sf::Texture npcTexture;
+	sf::Sprite npcSprite;
 	sf::RectangleShape npcRect;
 
 	// ___ Variables ___
