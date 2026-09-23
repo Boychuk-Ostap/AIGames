@@ -30,9 +30,6 @@ private:
 	sf::Sprite playerSprite;
 	sf::RectangleShape playerRect;
 
-	// --- Variables --- 
-	float speed_Player;
-
 	// --- Kinematic attributes ---
 	sf::Vector2f position_P;
 	sf::Vector2f velocity_P;

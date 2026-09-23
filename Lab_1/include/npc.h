@@ -23,7 +23,7 @@ public:
 private:
 	void Movement(float dt);
 	void KeyBoardHandle();
-	int GetRandDir();
+	float GetRandHeading();
 	void DirectionHandle();
 	void WrapAroundScreen(sf::Vector2f window_Size);
 
@@ -33,9 +33,15 @@ private:
 	sf::RectangleShape npcRect;
 
 	// ___ Variables ___
-	float speed_Npc;
 	int random_Direction_Number;
 
+	// --- Kinematic ---
+	sf::Vector2f position_N;
+	sf::Vector2f velocity_N;
+	float heading_N = 0.f;
+	float speed_N = 200.f;
+	float maxSpeed_N = 400.f;
 
+	static constexpr float spriteRotationOffset = 90.f;
 	
 };

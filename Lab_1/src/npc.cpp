@@ -1,5 +1,8 @@
 #include "npc.h"
 #include <random>
+#include <algorithm>
+#include <cmath>
+#include <numbers>
 
 Npc::Npc() : npcTexture("../Assets/kenney_simple-space/PNG/Default/enemy_D.png"),
 			 npcSprite(npcTexture)
@@ -8,11 +11,12 @@ Npc::Npc() : npcTexture("../Assets/kenney_simple-space/PNG/Default/enemy_D.png")
 	float scaleNPC = 100.f / static_cast<float>(texureSizeNPC.x);
 	npcSprite.setScale({ scaleNPC, scaleNPC });
 	npcSprite.setOrigin(sf::Vector2f(texureSizeNPC) / 2.f);
-	npcSprite.setPosition({ 500.f, 500.f });
 
-	speed_Npc = 200;
-	random_Direction_Number = GetRandDir();
+	position_N = { 800.f, 500.f };
+	heading_N = GetRandHeading();
 
+	npcSprite.setPosition(position_N);
+	npcSprite.setRotation(sf::degrees(heading_N + spriteRotationOffset));
 }
 
 void Npc::Draw(sf::RenderWindow & window)
@@ -30,30 +34,27 @@ void Npc::Update(float dt, sf::Vector2f window_Size)
 
 void Npc::Movement(float dt)
 {
-	switch (move_dir) {
-	case Movement_direction_NPC::Up: npcSprite.move({ 0.f, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::Down: npcSprite.move({ 0.f, speed_Npc * dt }); break;
-	case Movement_direction_NPC::Left: npcSprite.move({ -speed_Npc * dt, 0.f }); break;
-	case Movement_direction_NPC::Rigth: npcSprite.move({ speed_Npc * dt, 0.f }); break;
+	const float radians = heading_N * std::numbers::pi_v<float> / 180.f;
 
-	case Movement_direction_NPC::UpRight: npcSprite.move({ speed_Npc * dt, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::UpLeft: npcSprite.move({ -speed_Npc * dt, -speed_Npc * dt }); break;
-	case Movement_direction_NPC::DownLeft: npcSprite.move({ -speed_Npc * dt, speed_Npc * dt }); break;
-	case Movement_direction_NPC::DownRight: npcSprite.move({ speed_Npc * dt, speed_Npc * dt }); break;
-	}
+	velocity_N = { std::cos(radians) * speed_N, std::sin(radians) * speed_N };
+	position_N += velocity_N * dt;
+
+	npcSprite.setPosition(position_N);
+	npcSprite.setRotation(sf::degrees(heading_N + spriteRotationOffset));
+
 }
 
 void Npc::KeyBoardHandle()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N)) {
-		random_Direction_Number = GetRandDir();
+		heading_N = GetRandHeading();
 	}
 }
 
-int Npc::GetRandDir()
+float Npc::GetRandHeading()
 {
 	static std::mt19937 rng{ std::random_device{}() };
-	static std::uniform_int_distribution<int> dist(1, 8);
+	static std::uniform_real_distribution<float> dist(0.f, 360.f);
 	return dist(rng);
 }
 
@@ -75,22 +76,21 @@ void Npc::DirectionHandle()
 
 void Npc::WrapAroundScreen(sf::Vector2f window_Size)
 {
-	sf::Vector2f npcPos = npcSprite.getPosition();
-	sf::Vector2f npcSize = npcSprite.getGlobalBounds().size;
+	sf::Vector2f npcSize = npcSprite.getGlobalBounds().size / 2.0f;
 
-	if (npcPos.x + npcSize.x < 0.f) {
-		npcPos.x = window_Size.x; // Left -> right
+	if (position_N.x + npcSize.x < 0.f) {
+		position_N.x = window_Size.x; // Left -> right
 	}
-	else if (npcPos.x > window_Size.x + 5) {
-		npcPos.x = -npcSize.x; // Right -> left
-	}
-
-	if (npcPos.y + npcSize.y < 0.f) {
-		npcPos.y = window_Size.y; // top -> down
-	}
-	else if (npcPos.y > window_Size.y) {
-		npcPos.y = -npcSize.y; // down -> top
+	else if (position_N.x > window_Size.x + 5) {
+		position_N.x = -npcSize.x; // Right -> left
 	}
 
-	npcSprite.setPosition(npcPos);
+	if (position_N.y + npcSize.y < 0.f) {
+		position_N.y = window_Size.y; // top -> down
+	}
+	else if (position_N.y > window_Size.y) {
+		position_N.y = -npcSize.y; // down -> top
+	}
+
+	npcSprite.setPosition(position_N);
 }
