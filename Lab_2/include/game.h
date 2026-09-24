@@ -8,17 +8,18 @@ public:
 	Game();
 	void Run();
 
-	Player player;
-	Npc npc;
-	
 private:
 	void ProcessEvents();
 	void Update(sf::Time dt);
 	void Render();
 
 	sf::RenderWindow main_window;
-	static constexpr sf::Vector2u window_Size{ 1920u, 1080u };
+	sf::Vector2f window_Size;
 
+	sf::Texture alienTexture;
+	sf::Font font;
+	Player player;
+	std::vector<Npc> npcs;
 
 	float deltaTime = 0.f;
 };

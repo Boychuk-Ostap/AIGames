@@ -8,7 +8,7 @@ Player::Player() : playerTexture("../Assets/kenney_simple-space/PNG/Default/ship
 playerSprite(playerTexture)
 {
 	const auto textureSizeP = playerTexture.getSize();
-	float scaleP = 100.0f / static_cast<float>(textureSizeP.x);
+	float scaleP = 75.0f / static_cast<float>(textureSizeP.x);
 	playerSprite.setScale({ scaleP, scaleP });
 
 	playerSprite.setOrigin(sf::Vector2f(textureSizeP) / 2.f); // origin in the center of the sprite for rotation

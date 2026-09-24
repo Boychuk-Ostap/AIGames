@@ -1,30 +1,20 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-enum class Movement_direction {
-	None,
-	Up,
-	Down,
-	Left,
-	Rigth,
-	UpRight,
-	UpLeft,
-	DownLeft,
-	DownRight
-};
-
 class Player {
 public:
 	Player();
 	void Draw(sf::RenderWindow& window);
 	void Update(float dt, sf::Vector2f window_Size);
 
+	sf::Vector2f GetPosition() const { return position_P; }
+	sf::Vector2f GetVelocity() const { return velocity_P; }
+	float GetHeading() const { return heading_P; }
+
 private:
 	void Movement(float dt);
 	void KeyBoardHandle(float dt);
 	void WrapPlayerAroundScreen(sf::Vector2f window_Size);
-
-	Movement_direction move_dir = Movement_direction::None;
 
 	sf::Texture playerTexture;
 	sf::Sprite playerSprite;
