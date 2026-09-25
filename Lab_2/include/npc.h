@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class Player;
 
@@ -56,6 +57,18 @@ private:
 	float timeToTarget_N = 0.15f;
 
 	float maxPrediction_N = 1.0f; // seconds
+
+	bool InCone(sf::Vector2f point) const;
+	sf::Vector2f Avoid(const Player& player, const std::vector<Npc>& others);
+	void UpdateVisionCone();
+
+	float visionLength_N = 260.f;
+	float visionHalfAngle_N = 15.f;
+	float avoidWeight_N = 2.0f;
+
+	sf::ConvexShape visionCone;
+	bool seesNpc = false;
+	bool seesPlayer = false;
 
 	sf::Sprite npcSprite;
 	sf::Text label;

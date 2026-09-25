@@ -26,14 +26,19 @@ Npc::Npc(const sf::Texture& texture, const sf::Font& font,
 
 	label.setFillColor(sf::Color::White);
 
+	visionCone.setPointCount(3);
+	visionCone.setFillColor(sf::Color(0, 255, 0, 40));
+
 	npcSprite.setPosition(position_N);
 	npcSprite.setRotation(sf::degrees(heading_N + spriteRotationOffset));
+	UpdateVisionCone();
 	UpdateLabel();
 }
 
 void Npc::Draw(sf::RenderWindow & window)
 {
 	if (!active) return;
+	window.draw(visionCone);
 	window.draw(npcSprite);
 	window.draw(label);
 
@@ -44,9 +49,15 @@ void Npc::Update(float dt, const Player& player, const std::vector<Npc>& others,
 {
 	if (!active) return;
 
-	const sf::Vector2f steering_N = ComputeStreering(player, others, dt);
+	sf::Vector2f steering_N = ComputeStreering(player, others, dt);
+
+	const sf::Vector2f avoidance = Avoid(player, others);
+	if (avoidance != sf::Vector2f{ 0.f, 0.f })
+		steering_N = steering_N * 0.4f + avoidance * avoidWeight_N;
+
 	ApplySteering(steering_N, dt);
 	WrapAroundScreen(window_Size);
+	UpdateVisionCone();
 	UpdateLabel();
 }
 
@@ -122,6 +133,70 @@ float Npc::RandomBinomial()
 	static std::mt19937 rng{ std::random_device{}() };
 	static std::uniform_real_distribution<float> dist(0.f, 1.f);
 	return dist(rng) - dist(rng);
+}
+
+bool Npc::InCone(sf::Vector2f point) const
+{
+	const sf::Vector2f toPoint = point - position_N;
+	const float dist = std::hypot(toPoint.x, toPoint.y);
+	if (dist < 0.001f || dist > visionLength_N) return false;
+
+	const float headingRad = heading_N * std::numbers::pi_v<float> / 180.f;
+	const sf::Vector2f headingVec{ std::cos(headingRad), std::sin(headingRad) };
+
+	const float cosAngle = (headingVec.x * toPoint.x + headingVec.y * toPoint.y) / dist;
+	const float angleDeg = std::acos(std::clamp(cosAngle, -1.f, 1.f)) * 180.f / std::numbers::pi_v<float>;
+	return angleDeg <= visionHalfAngle_N;
+}
+
+sf::Vector2f Npc::Avoid(const Player& player, const std::vector<Npc>& others)
+{
+	seesPlayer = InCone(player.GetPosition());
+	seesNpc = false;
+
+	const Npc* closest = nullptr;
+	float closestDist = visionLength_N;
+
+	for (const Npc& other : others) {
+		if (&other == this || !other.IsActive()) continue;
+		if (!InCone(other.GetPosition())) continue;
+
+		const sf::Vector2f d = other.GetPosition() - position_N;
+		const float dist = std::hypot(d.x, d.y);
+		if (dist < closestDist) {
+			closestDist = dist;
+			closest = &other;
+		}
+	}
+
+	if (!closest) return { 0.f, 0.f };
+	seesNpc = true;
+
+	const float headingRad = heading_N * std::numbers::pi_v<float> / 180.f;
+	const sf::Vector2f headingVec{ std::cos(headingRad), std::sin(headingRad) };
+	const sf::Vector2f lateral{ -headingVec.y, headingVec.x };
+
+	const sf::Vector2f toObs = closest->GetPosition() - position_N;
+	const float side = (headingVec.x * toObs.y - headingVec.y * toObs.x) > 0.f ? -1.f : 1.f;
+
+	const float urgency = 1.f - (closestDist / visionLength_N);
+
+	return (lateral * side + headingVec * -0.3f) * maxAccel_N * (0.5f + urgency);
+}
+
+void Npc::UpdateVisionCone()
+{
+	const float toRad = std::numbers::pi_v<float> / 180.f;
+	const float leftRad = (heading_N - visionHalfAngle_N) * toRad;
+	const float rightRad = (heading_N + visionHalfAngle_N) * toRad;
+
+	visionCone.setPoint(0, position_N);
+	visionCone.setPoint(1, position_N + sf::Vector2f{ std::cos(leftRad), std::sin(leftRad) } * visionLength_N);
+	visionCone.setPoint(2, position_N + sf::Vector2f{ std::cos(rightRad), std::sin(rightRad) } * visionLength_N);
+
+	if (seesNpc) visionCone.setFillColor(sf::Color(255, 0, 0, 70));
+	else if (seesPlayer) visionCone.setFillColor(sf::Color(255, 255, 0, 50));
+	else visionCone.setFillColor(sf::Color(0, 255, 0, 40));
 }
 
 const char* Npc::BehaviourName(Behaviour bhvr_N)
