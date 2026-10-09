@@ -14,7 +14,7 @@ font("../Assets/Fonts/CHILLER.TTF")
 	npcs.emplace_back(alienTexture, font, Behaviour::Arrive, sf::Vector2f{ 1500.f, 800.f }, 450.f);
 	npcs.emplace_back(alienTexture, font, Behaviour::Pursue, sf::Vector2f{ 900.f, 900.f }, 320.f);
 
-	const int flockCount = 1000;
+	const int flockCount = 100;
 
 	flockTexture = sf::Texture("../Assets/kenney_simple-space/PNG/Default/enemy_A.png");
 	npcFlock.reserve(flockCount);

@@ -175,8 +175,10 @@ sf::Vector2f Npc::Flock(const std::vector<Npc>& others)
 	}
 	cohesion = Seek(cohesion / static_cast<float>(neighbours));
 
-	if (tooClose > 0)
-		separation /= static_cast<float>(tooClose);
+	const float sepLen = std::hypot(separation.x, separation.y);
+	if (sepLen > 0.001f)
+		separation = (separation / sepLen) * maxSpeed_N - velocity_N;
+
 
 	const float wSep = 1.8f;
 	const float wAlign = 1.0f;
